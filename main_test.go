@@ -7,7 +7,7 @@ import (
 
 func TestGetGithubCommit(t *testing.T) {
 	latestCommitSha, err := getGithubCommit()
-	fmt.Println("Testing getGithubCommit function")
+	fmt.Println("Begin unit testing getGithubCommit function")
 
 	if err != nil {
 		t.Errorf("getGithubCommit function returned an error. %s.", err)

@@ -1,4 +1,6 @@
+# OUT is the name of the binary
 OUT := endpoint
+# VERSION grabs the latest tag from repo
 VERSION := $(shell git describe --always --long)
 
 all: test server
@@ -8,9 +10,3 @@ server:
 
 test:
 	go test
-
-run:
-	./${OUT}
-
-clean:
-	-@rm ${OUT} ${OUT}-v*

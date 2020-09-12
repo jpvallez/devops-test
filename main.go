@@ -41,14 +41,17 @@ func getApplicationVersion() string {
 }
 
 func serviceResponse(w http.ResponseWriter, r *http.Request) {
-	// Get the latest github commit for our repo (hardcoded).
+	// Get the latest github commit for our repo (hardcoded)
 	latestCommit, _ := getGithubCommit()
+
+	// Create response object
 	response := Response{
 		LastCommitSha: latestCommit,
 		Version:       getApplicationVersion(),
 		Description:   "This is a pre-interview technical test",
 	}
 
+	// respond
 	json.NewEncoder(w).Encode(response)
 }
 
