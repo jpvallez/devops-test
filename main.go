@@ -17,34 +17,35 @@ type Response struct {
 	Description   string
 }
 
-func getGithubCommit() string {
-	resp, err := http.Get("https://api.github.com/repos/jpvallez/learn-docker/commits/master")
+var version = "undefined"
+
+func getGithubCommit() (string, error) {
+	resp, err := http.Get("https://api.github.com/repos/jpvallez/devops-test/commits/master")
 	if err != nil {
-		// TODO: Handle this properly
-		return "Unable to get github commit sha."
+		return "", err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		// TODO: Handle this properly
-		return "Unable to get github commit sha."
+		return "", err
 	}
 
 	var sha GitSha
 	json.Unmarshal(body, &sha)
 
-	return sha.Sha
+	return sha.Sha, err
 }
 
 func getApplicationVersion() string {
-	// Will need to understand this properly
-	return "1.0"
+	return version
 }
 
 func serviceResponse(w http.ResponseWriter, r *http.Request) {
+	// Get the latest github commit for our repo (hardcoded).
+	latestCommit, _ := getGithubCommit()
 	response := Response{
-		LastCommitSha: getGithubCommit(),
-		Version:       "1.0",
+		LastCommitSha: latestCommit,
+		Version:       getApplicationVersion(),
 		Description:   "This is a pre-interview technical test",
 	}
 

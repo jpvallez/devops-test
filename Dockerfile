@@ -1,7 +1,10 @@
 FROM golang:alpine
+ENV CGO_ENABLED 0
+RUN apk update --no-cache
+RUN apk add git \bash \make
 ADD . /go/src/devops-test
 WORKDIR /go/src/devops-test
-RUN go build -o endpoint  .
+RUN make
 
 FROM alpine:latest  
 EXPOSE 8080
