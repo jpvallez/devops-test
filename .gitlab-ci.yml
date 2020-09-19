@@ -1,0 +1,48 @@
+stages:
+  - build
+  - test
+  - release
+
+services:
+  - docker:19.03.0-dind
+
+variables:
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+build:
+  stage: build
+  image: docker:19.03.0
+  script:
+    - docker build -t $CONTAINER_TEST_IMAGE .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CONTAINER_TEST_IMAGE
+
+sast:
+  stage: build
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
+test:
+  stage: test
+  needs: 
+    - build
+  image: cfmanteiga/alpine-bash-curl-jq
+  services:
+    - name: $CONTAINER_TEST_IMAGE
+      alias: devops-test-endpoint
+  script:
+    - "./container-test.sh devops-test-endpoint"
+
+release-image:
+  stage: release
+  image: docker:19.03.0
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+#  only:
+#    - master
